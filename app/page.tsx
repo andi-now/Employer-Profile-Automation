@@ -22,7 +22,7 @@ interface Stats {
 }
 
 export default function EmployerProfileDashboard() {
-  const [webhookUrl, setWebhookUrl] = useState('https://hook.eu2.make.com/wox5dmw6fbgunazmmya2hahi369rolbb');
+  const [webhookUrl, setWebhookUrl] = useState('https://hook.eu2.make.com/7co3nj8sls99gitwcyk7dnuotkpihxvx');
   const [websiteUrl, setWebsiteUrl] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -61,16 +61,16 @@ export default function EmployerProfileDashboard() {
     const completedJobs = jobs.filter(j => j.status === 'completed' && j.endTime);
     const avgTime = completedJobs.length > 0
       ? completedJobs.reduce((acc, job) => {
-          const duration = new Date(job.endTime!).getTime() - new Date(job.startTime).getTime();
-          return acc + duration / 1000;
-        }, 0) / completedJobs.length
+        const duration = new Date(job.endTime!).getTime() - new Date(job.startTime).getTime();
+        return acc + duration / 1000;
+      }, 0) / completedJobs.length
       : 0;
 
     setStats({ total, completed, failed, processing, avgTime });
   };
 
   const validateUrl = (url: string) => {
-  try {
+    try {
       new URL(url);
       return true;
     } catch {
@@ -194,7 +194,7 @@ export default function EmployerProfileDashboard() {
   };
 
   const getStatusIcon = (status: string) => {
-    switch(status) {
+    switch (status) {
       case 'completed':
         return <CheckCircle className="w-5 h-5 text-emerald-500" />;
       case 'failed':
@@ -207,7 +207,7 @@ export default function EmployerProfileDashboard() {
   };
 
   const getStatusColor = (status: string) => {
-    switch(status) {
+    switch (status) {
       case 'completed':
         return 'from-emerald-50 to-teal-50 border-emerald-200';
       case 'failed':
