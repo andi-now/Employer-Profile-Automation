@@ -121,9 +121,10 @@ export default function EmployerProfileDashboard() {
         body: JSON.stringify({
           // Match Make.com webhook expected fields
           source: 'frontend_app',
-          website: websiteUrl,  // Make.com expects "website" not "website_url"
-          ts: new Date().toISOString(),  // Make.com expects "ts"
-          timestamp: new Date().toISOString(),  // Also include timestamp for folder naming
+          website_url: websiteUrl,  // Primary field for Make.com
+          website: websiteUrl,  // Backup field for compatibility
+          ts: new Date().toISOString(),
+          timestamp: new Date().toISOString(),
           // Additional context fields
           job_id: jobId,
           website_host: new URL(websiteUrl).hostname,
