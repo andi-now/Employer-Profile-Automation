@@ -119,8 +119,13 @@ export default function EmployerProfileDashboard() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          // Match Make.com webhook expected fields
+          source: 'frontend_app',
+          website: websiteUrl,  // Make.com expects "website" not "website_url"
+          ts: new Date().toISOString(),  // Make.com expects "ts"
+          timestamp: new Date().toISOString(),  // Also include timestamp for folder naming
+          // Additional context fields
           job_id: jobId,
-          website_url: websiteUrl,
           website_host: new URL(websiteUrl).hostname,
           run_folder_hint: `AUTO_EMP_${new URL(websiteUrl).hostname}_${new Date().toISOString()}`,
           assets: {
@@ -132,8 +137,7 @@ export default function EmployerProfileDashboard() {
             create_google_doc: true,
             include_benefits: true,
             include_matched_benefits: true
-          },
-          timestamp: new Date().toISOString()
+          }
         })
       });
 
