@@ -20,11 +20,12 @@ interface Profile {
     success?: boolean;
     domain?: string;
     name?: string;
+    shortDescription?: string;
     description?: string;
     folderUrl?: string;
     docUrl?: string;
     qualityScore?: number;
-    logos?: Array<{ type: string; formats: Array<{ src: string; format: string }> }>;
+    logos?: Array<{ type: string; theme?: string; formats: Array<{ src: string; format: string }> }>;
     colors?: Array<{ hex: string; type: string; brightness: number }>;
     fonts?: Array<{ name: string; type: string }>;
     links?: Array<{ url: string; name: string }>;
@@ -721,11 +722,22 @@ export default function EmployerProfilePro() {
 
                 {selectedProfile.status === 'completed' && selectedProfile.data && (
                   <div className="space-y-4">
-                    {/* Description */}
+                    {/* Short Description (300 chars) */}
+                    {selectedProfile.data.shortDescription && (
+                      <div className={`${darkMode ? 'bg-gradient-to-r from-violet-600/20 to-indigo-600/20' : 'bg-gradient-to-r from-violet-50 to-indigo-50'} rounded-xl p-4 border ${darkMode ? 'border-violet-500/30' : 'border-violet-200'}`}>
+                        <h3 className={`font-semibold ${t.text} mb-2 flex items-center gap-2`}>
+                          <Zap className="w-4 h-4 text-violet-400" />Kurzprofil (300 Zeichen)
+                          <span className="text-xs bg-violet-500/20 text-violet-400 px-2 py-0.5 rounded-full">{selectedProfile.data.shortDescription.length} chars</span>
+                        </h3>
+                        <p className={`${t.text} text-base font-medium`}>{selectedProfile.data.shortDescription}</p>
+                      </div>
+                    )}
+
+                    {/* Full Description */}
                     {selectedProfile.data.description && (
                       <div className={`${darkMode ? 'bg-white/5' : 'bg-gray-50'} rounded-xl p-4`}>
                         <h3 className={`font-semibold ${t.text} mb-2 flex items-center gap-2`}>
-                          <FileText className="w-4 h-4 text-violet-400" />Description
+                          <FileText className="w-4 h-4 text-violet-400" />Vollbeschreibung
                           {selectedProfile.data.qualityScore && <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">Score: {selectedProfile.data.qualityScore}</span>}
                         </h3>
                         <p className={`${t.muted} text-sm`}>{selectedProfile.data.description}</p>
