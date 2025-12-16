@@ -21,10 +21,13 @@ interface Profile {
     domain?: string;
     name?: string;
     description?: string;
+    employerText?: string;
+    matchedBenefits?: string;
     folderUrl?: string;
     docUrl?: string;
     qualityScore?: number;
     logos?: Array<{ type: string; formats: Array<{ src: string; format: string }> }>;
+    images?: Array<{ formats: Array<{ src: string; format: string }> }>;
     colors?: Array<{ hex: string; type: string; brightness: number }>;
     fonts?: Array<{ name: string; type: string }>;
     links?: Array<{ url: string; name: string }>;
@@ -635,6 +638,119 @@ export default function EmployerProfilePro() {
           </div>
         )}
 
+        {/* Grid View */}
+        {(view === 'table' || view === 'dashboard') && displayMode === 'grid' && (
+          <div className="space-y-4">
+            {/* Stats Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {[
+                { label: 'Total', value: stats.total, icon: Database, color: 'violet' },
+                { label: 'Completed', value: stats.completed, icon: CheckCircle, color: 'emerald' },
+                { label: 'Processing', value: stats.processing, icon: RefreshCw, color: 'blue' },
+                { label: 'Failed', value: stats.failed, icon: XCircle, color: 'red' }
+              ].map(({ label, value, icon: Icon, color }) => (
+                <div key={label} className={`${t.card} border rounded-xl p-4 backdrop-blur`}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={`text-xs font-medium ${t.muted}`}>{label}</span>
+                    <Icon className={`w-4 h-4 text-${color}-400`} />
+                  </div>
+                  <p className={`text-2xl font-bold ${t.text}`}>{value}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Grid Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {filteredProfiles.map(profile => (
+                <div key={profile.id}
+                  className={`${t.card} border rounded-xl backdrop-blur overflow-hidden hover:shadow-xl hover:shadow-violet-500/10 transition-all duration-300 cursor-pointer group`}
+                  onClick={() => { setSelectedProfile(profile); setView('profile'); }}
+                >
+                  {/* Card Header with Logo */}
+                  <div className="bg-gradient-to-br from-violet-600/20 to-indigo-600/20 p-4 border-b border-white/10">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center overflow-hidden">
+                        {profile.data?.logos?.[0]?.formats?.[0]?.src ? (
+                          <img src={profile.data.logos[0].formats[0].src} alt="" className="w-full h-full object-contain p-1" />
+                        ) : (
+                          <Building2 className="w-6 h-6 text-violet-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className={`font-semibold ${t.text} truncate`}>{profile.data?.name || 'Loading...'}</h3>
+                        <p className={`text-sm ${t.muted} truncate`}>{profile.data?.domain || profile.url}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card Body */}
+                  <div className="p-4 space-y-3">
+                    {/* Status Badge */}
+                    <div className="flex items-center justify-between">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 ${profile.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400' :
+                        profile.status === 'failed' ? 'bg-red-500/20 text-red-400' :
+                          'bg-blue-500/20 text-blue-400'
+                        }`}>
+                        {profile.status === 'completed' && <CheckCircle className="w-3 h-3" />}
+                        {profile.status === 'processing' && <RefreshCw className="w-3 h-3 animate-spin" />}
+                        {profile.status === 'failed' && <XCircle className="w-3 h-3" />}
+                        {profile.status}
+                      </span>
+                      {profile.data?.qualityScore && (
+                        <span className="text-xs bg-violet-500/20 text-violet-400 px-2 py-1 rounded-full">
+                          Score: {profile.data.qualityScore}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Color Palette */}
+                    {(profile.data?.colors?.length ?? 0) > 0 && (
+                      <div className="flex gap-1">
+                        {profile.data?.colors?.slice(0, 5).map((c, i) => (
+                          <div key={i} className="w-6 h-6 rounded-md shadow-sm" style={{ backgroundColor: c.hex }} title={c.hex} />
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Quick Stats */}
+                    <div className={`flex items-center gap-3 text-xs ${t.muted}`}>
+                      <span className="flex items-center gap-1"><Award className="w-3 h-3" />{profile.data?.logos?.length ?? 0} logos</span>
+                      <span className="flex items-center gap-1"><Type className="w-3 h-3" />{profile.data?.fonts?.length ?? 0} fonts</span>
+                      <span className="flex items-center gap-1"><Link2 className="w-3 h-3" />{profile.data?.links?.length ?? 0} links</span>
+                    </div>
+
+                    {/* Date */}
+                    <div className={`text-xs ${t.muted} flex items-center gap-1`}>
+                      <Calendar className="w-3 h-3" />
+                      {new Date(profile.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+
+                  {/* Card Footer Actions */}
+                  <div className={`px-4 py-3 border-t ${t.tableBorder} flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity`}>
+                    {profile.data?.folderUrl && (
+                      <a href={profile.data.folderUrl} target="_blank" onClick={e => e.stopPropagation()} className="flex-1 py-1.5 bg-blue-500/10 text-blue-400 rounded-lg text-xs font-medium hover:bg-blue-500/20 text-center">
+                        Drive
+                      </a>
+                    )}
+                    <button onClick={e => { e.stopPropagation(); deleteProfile(profile.id); }} className="flex-1 py-1.5 bg-red-500/10 text-red-400 rounded-lg text-xs font-medium hover:bg-red-500/20">
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {filteredProfiles.length === 0 && (
+              <div className={`${t.card} border rounded-xl p-12 text-center`}>
+                <Database className={`w-12 h-12 mx-auto mb-4 ${t.muted}`} />
+                <h3 className={`font-semibold ${t.text} mb-2`}>No profiles found</h3>
+                <p className={`${t.muted} text-sm`}>Create your first profile by clicking the &quot;+ New&quot; button</p>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Generate View */}
         {view === 'generate' && (
           <div className="max-w-xl mx-auto">
@@ -729,6 +845,47 @@ export default function EmployerProfilePro() {
                           {selectedProfile.data.qualityScore && <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">Score: {selectedProfile.data.qualityScore}</span>}
                         </h3>
                         <p className={`${t.muted} text-sm`}>{selectedProfile.data.description}</p>
+                      </div>
+                    )}
+
+                    {/* AI-Generated Employer Text */}
+                    {selectedProfile.data.employerText && (
+                      <div className="bg-gradient-to-br from-violet-500/20 via-purple-500/15 to-pink-500/20 rounded-xl p-4 border border-violet-500/30">
+                        <h3 className="font-semibold text-white mb-2 flex items-center gap-2">
+                          <Zap className="w-4 h-4 text-violet-400" />
+                          <span className="bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">KI-Arbeitgeberbeschreibung</span>
+                        </h3>
+                        <p className="text-white/90 text-sm leading-relaxed">{selectedProfile.data.employerText}</p>
+                      </div>
+                    )}
+
+                    {/* Matched Benefits */}
+                    {selectedProfile.data.matchedBenefits && selectedProfile.data.matchedBenefits.trim() !== '' && (
+                      <div className={`${darkMode ? 'bg-emerald-500/10' : 'bg-emerald-50'} rounded-xl p-4 border border-emerald-500/20`}>
+                        <h3 className={`font-semibold ${t.text} mb-3 flex items-center gap-2`}>
+                          <CheckCircle className="w-4 h-4 text-emerald-400" />Erkannte Benefits
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedProfile.data.matchedBenefits.split(',').filter(b => b.trim()).map((benefit, i) => (
+                            <span key={i} className="bg-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-full text-sm font-medium">
+                              ✓ {benefit.trim()}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Images */}
+                    {(selectedProfile.data.images?.length ?? 0) > 0 && (
+                      <div className={`${darkMode ? 'bg-white/5' : 'bg-gray-50'} rounded-xl p-4`}>
+                        <h3 className={`font-semibold ${t.text} mb-3 flex items-center gap-2`}><Globe className="w-4 h-4 text-cyan-400" />Images ({selectedProfile.data.images?.length ?? 0})</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                          {selectedProfile.data.images?.map((img, i) => (
+                            <div key={i} className={`${darkMode ? 'bg-white/10' : 'bg-white'} rounded-lg p-2 border ${t.tableBorder} overflow-hidden`}>
+                              {img.formats?.[0]?.src && <img src={img.formats[0].src} alt={`Image ${i + 1}`} className="w-full h-24 object-cover rounded" />}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
 
